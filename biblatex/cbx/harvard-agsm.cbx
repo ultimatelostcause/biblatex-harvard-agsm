@@ -1,0 +1,116 @@
+% 
+% Biblatex style: harvard-agsm
+% 
+% Requires the biblatex 3.7 authoryear-comp style and xpatch package.
+% 
+% -----
+% 
+% Copyright (c) 2017 ultimatelostcause
+%
+% Permission is granted to copy, distribute and/or modify this
+% software under the terms of the LaTeX Project Public License
+% (LPPL), version 1.3c.
+%
+% This software is provided 'as is', without warranty of any kind,
+% either expressed or implied, including, but not limited to, the
+% implied warranties of merchantability and fitness for a
+% particular purpose.
+% 
+\ProvidesFile{harvard-agsm.cbx}
+[\abx@cbxid]
+
+% 
+% CONFIGURATION
+% ------------------------------------------------------------------
+\RequireCitationStyle{authoryear-comp}
+
+% 
+% NEW COMMANDS
+% ------------------------------------------------------------------
+\DeclareCiteCommand{\citeauthorurl}
+  {\boolfalse{citetracker}%
+   \boolfalse{pagetracker}%
+   \usebibmacro{prenote}}
+  {\ifnameundef{labelname}
+    {\printfield{title}}
+    {\printnames{labelname}}%
+   \addspace\printfield[citeurl]{url}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+\DeclareCiteCommand{\parenciteyear}[\mkbibparens]
+  {\boolfalse{citetracker}%
+   \boolfalse{pagetracker}%
+   \usebibmacro{prenote}}
+  {\printfield{year}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+\DeclareMultiCiteCommand{\citeyears}{\citeyear}{\multicitedelim}
+\DeclareMultiCiteCommand{\parenciteyears}[\mkbibparens]{\parenciteyear}{\multicitedelim}
+
+% 
+% CUSTOMISATION
+% ------------------------------------------------------------------
+
+% Use `and' instead of ampersand only for textcite: AGSM p. 193
+\DeclareDelimFormat[textcite]{finalnamedelim}{%
+  \ifnumgreater{\value{liststop}}{2}{\finalandcomma}{}%
+  \addspace\bibstring{and}\space}
+
+% Repeat year in citation for same author: AGMS p. 195
+\xpatchbibmacro{cite}
+  {\ifthenelse{\iffieldequals{labelyear}{\cbx@lastyear}\AND
+               \(\value{multicitecount}=0\OR\iffieldundef{postnote}\)}
+    {\setunit{\addcomma}%
+     \usebibmacro{cite:extrayear}}
+    {\setunit{\compcitedelim}%
+     \usebibmacro{cite:labelyear+extrayear}%
+     \savefield{labelyear}{\cbx@lastyear}}}
+  {\setunit{\compcitedelim}%
+   \usebibmacro{cite:labelyear+extrayear}%
+   \savefield{labelyear}{\cbx@lastyear}}
+  {}
+  {\patcherror{cite}{repetition of year}}
+\xpatchbibmacro{citeyear}
+  {\ifthenelse{\iffieldequals{labelyear}{\cbx@lastyear}\AND
+               \(\value{multicitecount}=0\OR\iffieldundef{postnote}\)}
+    {\setunit{\addcomma}%
+     \usebibmacro{cite:extrayear}}
+    {\setunit{\compcitedelim}%
+     \usebibmacro{cite:labelyear+extrayear}%
+     \savefield{labelyear}{\cbx@lastyear}}}
+  {\setunit{\compcitedelim}%
+   \usebibmacro{cite:labelyear+extrayear}%
+   \savefield{labelyear}{\cbx@lastyear}}
+  {}
+  {\patcherror{citeyear}{repetition of year}}
+\xpatchbibmacro{textcite}
+  {\ifthenelse{\iffieldequals{labelyear}{\cbx@lastyear}\AND
+               \(\value{multicitecount}=0\OR\iffieldundef{postnote}\)}
+    {\setunit{\addcomma}%
+     \usebibmacro{cite:extrayear}}
+    {\setunit{\compcitedelim}%
+     \usebibmacro{cite:labelyear+extrayear}%
+     \savefield{labelyear}{\cbx@lastyear}}}
+  {\setunit{\compcitedelim}%
+   \usebibmacro{cite:labelyear+extrayear}%
+   \savefield{labelyear}{\cbx@lastyear}}
+  {}
+  {\patcherror{textcite}{repetition of year}}
+
+% Change initial ordering only for textcite: AGSM p. 195
+\xpatchbibmacro{textcite}
+  {\printnames{labelname}}
+  {\DeclareNameAlias{labelname}{labelname-given-family}%
+   \printnames{labelname}%
+   \DeclareNameAlias{labelname}{labelname-family-given}}
+  {}
+  {\patcherror{textcite}{initial order for textcite}}
+
+% Wrap URL citations in <>: AGSM p. 230
+\DeclareFieldFormat{citeurl}{%
+  \let\oldurlfont\UrlFont%
+  \def\UrlFont{}%
+  \textless\url{#1}\textgreater%
+  \let\UrlFont\oldurlfont}
+
+\endinput
